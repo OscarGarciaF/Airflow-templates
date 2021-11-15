@@ -29,7 +29,7 @@ default_args = {
 }
 
 #name the DAG and configuration
-dag = DAG('insert_user_purchase_postgres',
+dag = DAG('insert_movie_review_postgres',
           default_args=default_args,
           schedule_interval='@once',
           catchup=False)
@@ -41,10 +41,9 @@ def file_path(relative_path):
     return new_path
 
 
-FILE_NAME = "user_purchase.csv"
-TABLE_NAME = "user_purchase_bronze"
-BUCKET = 'data-bootcamp-terraforms-us' 
-
+FILE_NAME = "movie_review.csv"
+TABLE_NAME = "movie_review_bronze"
+BUCKET = 'data-bootcamp-terraforms-us'
 
 
 COPY_QUERY = f""" COPY {TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
@@ -73,14 +72,8 @@ end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 task_create_table = PostgresOperator(task_id = 'create_table',
                         sql=f"""
                         CREATE TABLE IF NOT EXISTS {TABLE_NAME} (    
-                            invoice_number VARCHAR(255),
-                            stock_code VARCHAR(255),
-                            detail VARCHAR(255),
-                            quantity INTEGER,
-                            invoice_date TIMESTAMP,
-                            unit_price NUMERIC,
-                            customer_id INTEGER,
-                            country VARCHAR(255));
+                            cid INTEGER,
+                            review_str VARCHAR);
                             """,
                             postgres_conn_id= 'postgres_default', 
                             autocommit=True,
