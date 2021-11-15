@@ -90,6 +90,7 @@ task_download_file = GCSToLocalFilesystemOperator(task_id="download_file",
         object_name=FILE_NAME,
         bucket=BUCKET,
         filename=FILE_NAME,
+        gcp_conn_id = "google_cloud_default",
         dag = dag
     )
 
