@@ -43,7 +43,7 @@ def file_path(relative_path):
 
 FILE_NAME = "user_purchase.csv"
 TABLE_NAME = "user_purchase_bronze"
-BUCKET = 'gs://data-bootcamp-terraforms-us'
+BUCKET = 'data-bootcamp-terraforms-us' #'gs://data-bootcamp-terraforms-us'
 
 
 
