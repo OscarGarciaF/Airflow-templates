@@ -3,6 +3,7 @@ import os
 import psycopg2
 from airflow import DAG
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.providers.google.cloud.transfers.gcs_to_local import GCSToLocalFilesystemOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.hooks.postgres_hook import PostgresHook
@@ -42,13 +43,17 @@ def file_path(relative_path):
 
 FILE_NAME = "user_purchase.csv"
 TABLE_NAME = "user_purchase_bronze"
+BUCKET = 'gs://data-bootcamp-terraforms-us'
+
+
+
 COPY_QUERY = f""" COPY {TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
 
 def csv_to_postgres():
     #Open Postgres Connection
     pg_hook = PostgresHook(postgres_conn_id='postgres_default')
     get_postgres_conn = PostgresHook(postgres_conn_id='postgres_default').get_conn()
-    curr = get_postgres_conn.cursor()
+    curr = get_postgres_conn.cursor()    
     # CSV loading to table
     with open(file_path(FILE_NAME), "r") as f:
         next(f)
@@ -56,6 +61,9 @@ def csv_to_postgres():
         curr.copy_expert(COPY_QUERY, file = f)
         get_postgres_conn.commit()
         curr.close()
+
+def delete_file():
+    os.remove(FILE_NAME)
 
 #Task 
 
@@ -78,10 +86,22 @@ task_create_table = PostgresOperator(task_id = 'create_table',
                             autocommit=True,
                             dag= dag)
 
+task_download_file = GCSToLocalFilesystemOperator(task_id="download_file",
+        object_name=FILE_NAME,
+        bucket=BUCKET,
+        filename=FILE_NAME,
+    )
+
 task_load_csv = PythonOperator(task_id='csv_to_database',
                    provide_context=True,
                    python_callable=csv_to_postgres,
                    dag=dag)
 
+task_delete_file = PythonOperator(task_id='delete_file',
+                   provide_context=True,
+                   python_callable=delete_file,
+                   dag=dag)
 
-start_dummy >> task_create_table >> task_load_csv >> end_dummy
+
+
+start_dummy >> task_create_table >> task_download_file >> task_load_csv >> task_delete_file >> end_dummy
