@@ -41,7 +41,7 @@ def file_path(relative_path):
 
 
 FILE_NAME = "user_purchase.csv"
-TABLE_NAME = "user_purchase"
+TABLE_NAME = "user_purchase_bronze"
 COPY_QUERY = f""" COPY {TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
 
 def csv_to_postgres():
