@@ -67,8 +67,8 @@ def delete_file():
 
 #Task 
 
-start_dummy = DummyOperator(task_id='start_dummy', default_args=default_args)
-end_dummy = DummyOperator(task_id='end_dummy', default_args=default_args)
+start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
+end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 
 task_create_table = PostgresOperator(task_id = 'create_table',
                         sql=f"""
@@ -90,6 +90,7 @@ task_download_file = GCSToLocalFilesystemOperator(task_id="download_file",
         object_name=FILE_NAME,
         bucket=BUCKET,
         filename=FILE_NAME,
+        dag = dag
     )
 
 task_load_csv = PythonOperator(task_id='csv_to_database',
