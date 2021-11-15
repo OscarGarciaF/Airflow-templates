@@ -56,8 +56,8 @@ def csv_to_postgres():
 
 #Task 
 
-start_dummy = DummyOperator(task_id='start_dummy')
-end_dummy = DummyOperator(task_id='end_dummy')
+start_dummy = DummyOperator(task_id='start_dummy', default_args=default_args)
+end_dummy = DummyOperator(task_id='end_dummy', default_args=default_args)
 
 task_create_table = PostgresOperator(task_id = 'create_table',
                         sql=f"""
