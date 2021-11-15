@@ -42,6 +42,7 @@ def file_path(relative_path):
 
 FILE_NAME = "user_purchase.csv"
 TABLE_NAME = "user_purchase"
+COPY_QUERY = f""" COPY {TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
 
 def csv_to_postgres():
     #Open Postgres Connection
@@ -51,8 +52,10 @@ def csv_to_postgres():
     # CSV loading to table
     with open(file_path(FILE_NAME), "r") as f:
         next(f)
-        curr.copy_from(f, TABLE_NAME, sep=",")
+        #curr.copy_from(f, TABLE_NAME, sep=",")
+        curr.copy_expert(COPY_QUERY, file = f)
         get_postgres_conn.commit()
+        curr.close()
 
 #Task 
 
