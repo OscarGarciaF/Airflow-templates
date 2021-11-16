@@ -45,11 +45,12 @@ REGION = "us-central1"
 PROJECT_ID = "deliverable3-oscargarciaf"
 JAR_PATH = "gs://data-bootcamp-terraforms-us/postgresql-42.3.1.jar"
 FILE_NAME = "postgresql-42.3.1.jar"
+JAR_URL = "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
     "placement": {"cluster_name": "cluster-c9dc"},
-    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": [file_path(FILE_NAME)]}
+    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": [JAR_URL]}
     
 }
 
