@@ -7,8 +7,8 @@ from pyspark.sql.window import *
 from pyspark.ml.feature import Tokenizer, StopWordsRemover 
 
 # %%
-#findspark.init()
-#spark = SparkSession.builder.getOrCreate()
+findspark.init()
+spark = SparkSession.builder.getOrCreate()
 
 # %%
 df = (spark.read 
