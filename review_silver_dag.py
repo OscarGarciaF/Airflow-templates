@@ -37,11 +37,13 @@ dag = DAG('review_silver_spark',
 BUCKET = 'data-bootcamp-terraforms-us'
 REGION = "us-central1"
 PROJECT_ID = "deliverable3-oscargarciaf"
+JAR_PATH = "gs://data-bootcamp-terraforms-us/postgresql-42.3.1.jar"
 
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
     "placement": {"cluster_name": "cluster-c9dc"},
-    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py"},
+    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": [JAR_PATH]}
+    
 }
 
 
