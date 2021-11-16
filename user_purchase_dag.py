@@ -55,7 +55,7 @@ def csv_to_postgres():
     get_postgres_conn = PostgresHook(postgres_conn_id='postgres_default').get_conn()
     curr = get_postgres_conn.cursor()    
     # CSV loading to table
-    with open(file_path(FILE_NAME), "r") as f:
+    with open(FILE_NAME, "r") as f:
         next(f)
         #curr.copy_from(f, TABLE_NAME, sep=",")
         curr.copy_expert(COPY_QUERY, file = f)
