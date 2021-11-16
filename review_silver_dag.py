@@ -1,4 +1,5 @@
 from airflow import DAG
+from airflow.providers.google.cloud.transfers.gcs_to_local import GCSToLocalFilesystemOperator
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator
 #from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitPySparkJobOperator
 from airflow.operators.dummy import DummyOperator
@@ -38,11 +39,12 @@ BUCKET = 'data-bootcamp-terraforms-us'
 REGION = "us-central1"
 PROJECT_ID = "deliverable3-oscargarciaf"
 JAR_PATH = "gs://data-bootcamp-terraforms-us/postgresql-42.3.1.jar"
+FILE_NAME = "postgresql-42.3.1.jar"
 
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
     "placement": {"cluster_name": "cluster-c9dc"},
-    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": [JAR_PATH]}
+    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": [FILE_NAME]}
     
 }
 
@@ -51,6 +53,13 @@ PYSPARK_JOB = {
 
 
 #Task 
+task_download_jar = GCSToLocalFilesystemOperator(task_id="download_jar",
+        object_name=FILE_NAME,
+        bucket=BUCKET,
+        filename=FILE_NAME,
+        gcp_conn_id = "google_cloud_default",
+        dag = dag
+    )
 
 submit_spark = DataprocSubmitJobOperator(task_id="review_spark_job",
                                             job=PYSPARK_JOB,
@@ -66,4 +75,4 @@ end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 
 
 
-start_dummy >> submit_spark >> end_dummy
+start_dummy >> task_download_jar >> submit_spark >> end_dummy
