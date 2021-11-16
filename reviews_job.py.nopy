@@ -1,0 +1,76 @@
+# %%
+import findspark
+from pyspark import SparkContext
+from pyspark.sql import *
+from pyspark.sql.functions import *
+from pyspark.sql.window import *
+from pyspark.ml.feature import Tokenizer, StopWordsRemover 
+
+# %%
+#findspark.init()
+#spark = SparkSession.builder.getOrCreate()
+
+# %%
+df = (spark.read 
+    .format("jdbc") 
+    .option("url", "jdbc:postgresql://34.133.240.67/dbname") 
+    .option("dbtable", "public.movie_review_bronze") 
+    .option("user", "dbuser")
+    .option("password", "dbpassword") 
+    .option("driver", "org.postgresql.Driver")
+    .load())
+
+# %%
+#df.printSchema()
+
+# %%
+
+tokenizer = Tokenizer(outputCol="words")
+tokenizer.setInputCol("review_str")
+
+remover = StopWordsRemover()
+remover.setInputCol("words")
+remover.setOutputCol("clean_words")
+
+
+df = tokenizer.transform(df)
+df = remover.transform(df)
+
+# %%
+#df.printSchema()
+
+# %%
+df = df.withColumn("positive_review", array_contains(df.clean_words, "good").cast('integer'))
+
+# %%
+#df.printSchema()
+
+# %%
+#df.select("positive_review").head(20)
+
+# %%
+write_df = df.select("cid", "positive_review")
+
+# %%
+#write_df.printSchema()
+
+# %%
+table_name = "reviews"
+(write_df.write 
+    .format("jdbc") 
+    .option("url", "jdbc:postgresql://34.133.240.67/dbname") 
+    .option("dbtable", f"public.{table_name}") 
+    .option("user", "dbuser")
+    .option("password", "dbpassword") 
+    .option("driver", "org.postgresql.Driver")
+    .mode("overwrite")
+    .option("truncate", True)
+    .save())
+
+# %%
+#print("saved table to postgres")
+
+# %%
+
+
+
