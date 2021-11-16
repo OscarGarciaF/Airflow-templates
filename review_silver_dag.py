@@ -5,6 +5,7 @@ from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobO
 from airflow.operators.dummy import DummyOperator
 from datetime import timedelta
 from datetime import datetime
+import os
 
 
 """
@@ -32,7 +33,11 @@ dag = DAG('review_silver_spark',
           catchup=False)
 
 
-
+def file_path(relative_path):
+    dir = os.path.dirname(os.path.abspath(__file__))
+    split_path = relative_path.split("/")
+    new_path = os.path.join(dir, *split_path)
+    return new_path
 
 
 BUCKET = 'data-bootcamp-terraforms-us'
@@ -44,7 +49,7 @@ FILE_NAME = "postgresql-42.3.1.jar"
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
     "placement": {"cluster_name": "cluster-c9dc"},
-    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": [FILE_NAME]}
+    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": [file_path(FILE_NAME)]}
     
 }
 
