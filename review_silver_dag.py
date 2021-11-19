@@ -65,7 +65,7 @@ CLUSTER_CONFIG = {
         "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 1024},
     },
     "software_config" : {
-        "properties" : {"spark" : "spark.jars.packages=org.postgresql:postgresql:42.3.1"}
+        "properties" : {"spark" : "spark:spark.jars.packages=org.postgresql:postgresql:42.3.1"}
     }
 }
 
