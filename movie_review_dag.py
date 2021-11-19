@@ -45,10 +45,12 @@ FILE_NAME = "movie_review.csv"
 TABLE_NAME = "movie_review"
 SCHEMA_NAME = "bronze"
 BUCKET = 'data-bootcamp-terraforms-us'
-
-
+CREATE_SCHEMA_QUERY = f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME} ;"
 COPY_QUERY = f""" COPY {SCHEMA_NAME}.{TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
-
+CREATE_TABLE_QUERY = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (    
+                            cid INTEGER,
+                            review_str VARCHAR);
+                            """
 
 
 def csv_to_postgres():
@@ -73,22 +75,19 @@ start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 
 
-create_schema_query = f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME} ;"
+
 
 
 task_create_schema = PostgresOperator(task_id = 'create_schema',
-                        sql=create_schema_query,
+                        sql=CREATE_SCHEMA_QUERY,
                             postgres_conn_id= 'postgres_default', 
                             autocommit=True,
                             dag= dag)
 
-create_table_query = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (    
-                            cid INTEGER,
-                            review_str VARCHAR);
-                            """
+
 
 task_create_table = PostgresOperator(task_id = 'create_table',
-                        sql=create_table_query,
+                        sql=CREATE_TABLE_QUERY,
                             postgres_conn_id= 'postgres_default', 
                             autocommit=True,
                             dag= dag)

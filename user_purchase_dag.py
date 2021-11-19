@@ -42,12 +42,21 @@ def file_path(relative_path):
 
 
 FILE_NAME = "user_purchase.csv"
-TABLE_NAME = "user_purchase_bronze"
-BUCKET = 'data-bootcamp-terraforms-us' 
-
-
-
-COPY_QUERY = f""" COPY {TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
+TABLE_NAME = "user_purchase"
+BUCKET = 'data-bootcamp-terraforms-us'
+SCHEMA_NAME = "bronze"
+CREATE_SCHEMA_QUERY = f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME} ;"
+COPY_QUERY = f""" COPY {SCHEMA_NAME}.{TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
+CREATE_TABLE_QUERY = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (    
+                            invoice_number VARCHAR(255),
+                            stock_code VARCHAR(255),
+                            detail VARCHAR(255),
+                            quantity INTEGER,
+                            invoice_date TIMESTAMP,
+                            unit_price NUMERIC,
+                            customer_id INTEGER,
+                            country VARCHAR(255));
+                            """
 
 def csv_to_postgres():
     #Open Postgres Connection
@@ -70,18 +79,14 @@ def delete_file():
 start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 
+task_create_schema = PostgresOperator(task_id = 'create_schema',
+                        sql=CREATE_SCHEMA_QUERY,
+                            postgres_conn_id= 'postgres_default', 
+                            autocommit=True,
+                            dag= dag)
+
 task_create_table = PostgresOperator(task_id = 'create_table',
-                        sql=f"""
-                        CREATE TABLE IF NOT EXISTS {TABLE_NAME} (    
-                            invoice_number VARCHAR(255),
-                            stock_code VARCHAR(255),
-                            detail VARCHAR(255),
-                            quantity INTEGER,
-                            invoice_date TIMESTAMP,
-                            unit_price NUMERIC,
-                            customer_id INTEGER,
-                            country VARCHAR(255));
-                            """,
+                        sql=CREATE_TABLE_QUERY,
                             postgres_conn_id= 'postgres_default', 
                             autocommit=True,
                             dag= dag)
@@ -106,4 +111,4 @@ task_delete_file = PythonOperator(task_id='delete_file',
 
 
 
-start_dummy >> task_create_table >> task_download_file >> task_load_csv >> task_delete_file >> end_dummy
+start_dummy >> task_create_schema >> task_create_table >> task_download_file >> task_load_csv >> task_delete_file >> end_dummy
