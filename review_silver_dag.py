@@ -59,9 +59,10 @@ CLUSTER_CONFIG = {
     }
 }
 
-create_schema_query = "CREATE SCHEMA silver IF NOT EXISTS"#"""IF (NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'silver')) 
+SCHEMA_NAME = "silver"
+create_schema_query = f"CREATE SCHEMA {SCHEMA_NAME} IF NOT EXISTS"#f"""IF (NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'silver')) 
                       #  BEGIN
-                      #      EXEC ('CREATE SCHEMA [silver]')
+                      #      EXEC ('CREATE SCHEMA [{SCHEMA_NAME}]')
                        # END"""
 
 
