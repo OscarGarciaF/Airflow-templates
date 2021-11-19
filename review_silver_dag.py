@@ -1,5 +1,4 @@
 from airflow import DAG
-from airflow.providers.google.cloud.transfers.gcs_to_local import GCSToLocalFilesystemOperator
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator, DataprocCreateClusterOperator, DataprocDeleteClusterOperator
 from airflow.operators.dummy import DummyOperator
 from datetime import timedelta
@@ -31,26 +30,16 @@ dag = DAG('review_silver_spark',
           schedule_interval='@once',
           catchup=False)
 
-
-def file_path(relative_path):
-    dir = os.path.dirname(os.path.abspath(__file__))
-    split_path = relative_path.split("/")
-    new_path = os.path.join(dir, *split_path)
-    return new_path
-
-
 BUCKET = 'data-bootcamp-terraforms-us'
 REGION = "us-central1"
 PROJECT_ID = "deliverable3-oscargarciaf"
-JAR_PATH = "gs://data-bootcamp-terraforms-us/postgresql-42.3.1.jar"
-FILE_NAME = "postgresql-42.3.1.jar"
-JAR_URL = "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 CLUSTER_NAME = PROJECT_ID + "-spark-cluster"
+JAR_MAVEN = "org.postgresql:postgresql:42.3.1"
 
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
     "placement": {"cluster_name": CLUSTER_NAME},
-    "pyspark_job": {"main_python_file_uri": "failgs://data-bootcamp-terraforms-us/reviews_job.py"}    
+    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py"}    
 }
 
 CLUSTER_CONFIG = {
@@ -65,7 +54,7 @@ CLUSTER_CONFIG = {
         "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 1024},
     },
     "software_config" : {
-        "properties" : {"spark:spark.jars.packages" : "org.postgresql:postgresql:42.3.1"}
+        "properties" : {"spark:spark.jars.packages" : JAR_MAVEN}
     }
 }
 
@@ -86,15 +75,6 @@ delete_cluster = DataprocDeleteClusterOperator(task_id = "delete_cluster",
     trigger_rule = "all_done",
     dag = dag)
 
-#Task 
-task_download_jar = GCSToLocalFilesystemOperator(task_id = "download_jar",
-        object_name=FILE_NAME,
-        bucket=BUCKET,
-        filename=FILE_NAME,
-        gcp_conn_id = "google_cloud_default",
-        dag = dag
-    )
-
 submit_spark = DataprocSubmitJobOperator(task_id="review_spark_job",
                                             job=PYSPARK_JOB,
                                             region=REGION,
@@ -107,6 +87,5 @@ end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 end_dummy_spark_job = DummyOperator(task_id='end_dummy_spark_job', dag = dag)
 
 
-#start_dummy >> task_download_jar >> submit_spark >> end_dummy
 start_dummy >> create_cluster >> submit_spark >> delete_cluster >> end_dummy
 submit_spark >> end_dummy_spark_job
