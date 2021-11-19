@@ -50,7 +50,7 @@ CLUSTER_NAME = PROJECT_ID + "-spark-cluster"
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
     "placement": {"cluster_name": CLUSTER_NAME},
-    #"pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": ["file://" + file_path(FILE_NAME)]}    
+    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py"}    
 }
 
 CLUSTER_CONFIG = {
