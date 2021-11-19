@@ -1,7 +1,6 @@
 from airflow import DAG
 from airflow.providers.google.cloud.transfers.gcs_to_local import GCSToLocalFilesystemOperator
-from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator
-#from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitPySparkJobOperator
+from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator, DataprocCreateClusterOperator, DataprocDeleteClusterOperator
 from airflow.operators.dummy import DummyOperator
 from datetime import timedelta
 from datetime import datetime
@@ -50,16 +49,41 @@ JAR_URL = "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
     "placement": {"cluster_name": "cluster-c9dc"},
-    "pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": ["file://" + file_path(FILE_NAME)]}
-    
+    #"pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": ["file://" + file_path(FILE_NAME)]}    
 }
 
+CLUSTER_CONFIG = {
+    "master_config": {
+        "num_instances": 1,
+        "machine_type_uri": "n1-standard-4",
+        "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 1024},
+    },
+    "worker_config": {
+        "num_instances": 2,
+        "machine_type_uri": "n1-standard-4",
+        "disk_config": {"boot_disk_type": "pd-standard", "boot_disk_size_gb": 1024},
+    },
+    "software_config" : {
+        "properties" : {"spark" : "spark.jars.packages=org.postgresql:postgresql:42.3.1"}
+    }
+}
+CLUSTER_NAME = PROJECT_ID + "_spark_cluster"
 
+create_cluster = DataprocCreateClusterOperator(task_id="create_cluster",
+    project_id=PROJECT_ID,
+    cluster_config=CLUSTER_CONFIG,
+    region=REGION,
+    cluster_name=CLUSTER_NAME,
+    dag = dag)
 
-
+delete_cluster = DataprocDeleteClusterOperator(task_id = "delete_cluster",
+    project_id = PROJECT_ID,
+    region=REGION,
+    cluster_name  = CLUSTER_NAME,
+    dag = dag)
 
 #Task 
-task_download_jar = GCSToLocalFilesystemOperator(task_id="download_jar",
+task_download_jar = GCSToLocalFilesystemOperator(task_id = "download_jar",
         object_name=FILE_NAME,
         bucket=BUCKET,
         filename=FILE_NAME,
@@ -78,7 +102,5 @@ start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 
 
-
-
-
-start_dummy >> task_download_jar >> submit_spark >> end_dummy
+#start_dummy >> task_download_jar >> submit_spark >> end_dummy
+start_dummy >> create_cluster >> submit_spark >> delete_cluster >> end_dummy
