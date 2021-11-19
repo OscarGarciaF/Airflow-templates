@@ -45,7 +45,7 @@ PROJECT_ID = "deliverable3-oscargarciaf"
 JAR_PATH = "gs://data-bootcamp-terraforms-us/postgresql-42.3.1.jar"
 FILE_NAME = "postgresql-42.3.1.jar"
 JAR_URL = "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
-CLUSTER_NAME = PROJECT_ID + "_spark_cluster"
+CLUSTER_NAME = PROJECT_ID + "-spark-cluster"
 
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
