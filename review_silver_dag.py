@@ -45,10 +45,11 @@ PROJECT_ID = "deliverable3-oscargarciaf"
 JAR_PATH = "gs://data-bootcamp-terraforms-us/postgresql-42.3.1.jar"
 FILE_NAME = "postgresql-42.3.1.jar"
 JAR_URL = "https://jdbc.postgresql.org/download/postgresql-42.3.1.jar"
+CLUSTER_NAME = PROJECT_ID + "_spark_cluster"
 
 PYSPARK_JOB = {
     "reference": {"project_id": PROJECT_ID},
-    "placement": {"cluster_name": "cluster-c9dc"},
+    "placement": {"cluster_name": CLUSTER_NAME},
     #"pyspark_job": {"main_python_file_uri": "gs://data-bootcamp-terraforms-us/reviews_job.py", "jar_file_uris": ["file://" + file_path(FILE_NAME)]}    
 }
 
@@ -67,7 +68,7 @@ CLUSTER_CONFIG = {
         "properties" : {"spark" : "spark.jars.packages=org.postgresql:postgresql:42.3.1"}
     }
 }
-CLUSTER_NAME = PROJECT_ID + "_spark_cluster"
+
 
 create_cluster = DataprocCreateClusterOperator(task_id="create_cluster",
     project_id=PROJECT_ID,
