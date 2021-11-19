@@ -24,7 +24,7 @@ default_args = {
     'email': ['garcia.oscar1729@gmail.com'],
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 2,
+    'retries': 1,
     'retry_delay': timedelta(seconds=3),
 }
 
