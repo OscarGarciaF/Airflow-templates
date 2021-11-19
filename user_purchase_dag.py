@@ -60,7 +60,7 @@ CREATE_TABLE_QUERY = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (
 
 def csv_to_postgres():
     #Open Postgres Connection
-    pg_hook = PostgresHook(postgres_conn_id='postgres_default')
+    #pg_hook = PostgresHook(postgres_conn_id='postgres_default')
     get_postgres_conn = PostgresHook(postgres_conn_id='postgres_default').get_conn()
     curr = get_postgres_conn.cursor()    
     # CSV loading to table
