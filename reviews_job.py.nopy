@@ -59,7 +59,7 @@ table_name = "reviews"
 (write_df.write 
     .format("jdbc") 
     .option("url", "jdbc:postgresql://34.133.240.67/dbname") 
-    .option("dbtable", f"public.{table_name}") 
+    .option("dbtable", f"silver.{table_name}") 
     .option("user", "dbuser")
     .option("password", "dbpassword") 
     .option("driver", "org.postgresql.Driver")

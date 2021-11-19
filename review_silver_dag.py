@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator, DataprocCreateClusterOperator, DataprocDeleteClusterOperator
+from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.operators.dummy import DummyOperator
 from datetime import timedelta
 from datetime import datetime
@@ -58,6 +59,18 @@ CLUSTER_CONFIG = {
     }
 }
 
+create_schema_query = """IF (NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'silver')) 
+                        BEGIN
+                            EXEC ('CREATE SCHEMA [silver]')
+                        END"""
+
+
+task_create_schema = PostgresOperator(task_id = 'create_schema',
+                        sql=create_schema_query,
+                            postgres_conn_id= 'postgres_default', 
+                            autocommit=True,
+                            dag= dag)
+
 
 create_cluster = DataprocCreateClusterOperator(task_id="create_cluster",
     project_id=PROJECT_ID,
@@ -82,10 +95,11 @@ submit_spark = DataprocSubmitJobOperator(task_id="review_spark_job",
                                             dag = dag
                                         )
 
+
 start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 end_dummy_spark_job = DummyOperator(task_id='end_dummy_spark_job', dag = dag)
 
 
-start_dummy >> create_cluster >> submit_spark >> delete_cluster >> end_dummy
+start_dummy >> task_create_schema >> create_cluster >> submit_spark >> delete_cluster >> end_dummy
 submit_spark >> end_dummy_spark_job
