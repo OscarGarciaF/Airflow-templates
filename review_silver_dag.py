@@ -74,6 +74,8 @@ create_cluster = DataprocCreateClusterOperator(task_id="create_cluster",
     cluster_config=CLUSTER_CONFIG,
     region=REGION,
     cluster_name=CLUSTER_NAME,
+    use_if_exists = True,
+    delete_on_error = True,
     dag = dag)
 
 delete_cluster = DataprocDeleteClusterOperator(task_id = "delete_cluster",
