@@ -43,10 +43,13 @@ def file_path(relative_path):
 
 FILE_NAME = "movie_review.csv"
 TABLE_NAME = "movie_review_bronze"
+SCHEMA_NAME = "bronze"
 BUCKET = 'data-bootcamp-terraforms-us'
 
 
-COPY_QUERY = f""" COPY {TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
+COPY_QUERY = f""" COPY {SCHEMA_NAME}.{TABLE_NAME} from stdin WITH CSV HEADER DELIMITER ',' ESCAPE '"' """
+
+
 
 def csv_to_postgres():
     #Open Postgres Connection
@@ -69,12 +72,23 @@ def delete_file():
 start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 
-task_create_table = PostgresOperator(task_id = 'create_table',
-                        sql=f"""
-                        CREATE TABLE IF NOT EXISTS {TABLE_NAME} (    
+
+create_schema_query = f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME} ;"
+
+
+task_create_schema = PostgresOperator(task_id = 'create_schema',
+                        sql=create_schema_query,
+                            postgres_conn_id= 'postgres_default', 
+                            autocommit=True,
+                            dag= dag)
+
+create_table_query = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (    
                             cid INTEGER,
                             review_str VARCHAR);
-                            """,
+                            """
+
+task_create_table = PostgresOperator(task_id = 'create_table',
+                        sql=create_table_query,
                             postgres_conn_id= 'postgres_default', 
                             autocommit=True,
                             dag= dag)
@@ -99,4 +113,4 @@ task_delete_file = PythonOperator(task_id='delete_file',
 
 
 
-start_dummy >> task_create_table >> task_download_file >> task_load_csv >> task_delete_file >> end_dummy
+start_dummy >> task_create_schema >> task_create_table >> task_download_file >> task_load_csv >> task_delete_file >> end_dummy
