@@ -42,7 +42,7 @@ def file_path(relative_path):
 
 
 FILE_NAME = "movie_review.csv"
-TABLE_NAME = "movie_review_bronze"
+TABLE_NAME = "movie_review"
 SCHEMA_NAME = "bronze"
 BUCKET = 'data-bootcamp-terraforms-us'
 
