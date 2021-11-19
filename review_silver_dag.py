@@ -59,10 +59,10 @@ CLUSTER_CONFIG = {
     }
 }
 
-create_schema_query = """IF (NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'silver')) 
-                        BEGIN
-                            EXEC ('CREATE SCHEMA [silver]')
-                        END"""
+create_schema_query = "CREATE SCHEMA silver IF NOT EXISTS"#"""IF (NOT EXISTS (SELECT * FROM sys.schemas WHERE name = 'silver')) 
+                      #  BEGIN
+                      #      EXEC ('CREATE SCHEMA [silver]')
+                       # END"""
 
 
 task_create_schema = PostgresOperator(task_id = 'create_schema',
