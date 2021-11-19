@@ -104,7 +104,9 @@ submit_spark = DataprocSubmitJobOperator(task_id="review_spark_job",
 
 start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
+end_dummy_spark_job = DummyOperator(task_id='end_dummy_spark_job', dag = dag)
 
 
 #start_dummy >> task_download_jar >> submit_spark >> end_dummy
 start_dummy >> create_cluster >> submit_spark >> delete_cluster >> end_dummy
+submit_spark >> end_dummy_spark_job
