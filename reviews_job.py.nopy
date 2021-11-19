@@ -14,7 +14,7 @@ spark = SparkSession.builder.getOrCreate()
 df = (spark.read 
     .format("jdbc") 
     .option("url", "jdbc:postgresql://34.133.240.67/dbname") 
-    .option("dbtable", "public.movie_review_bronze") 
+    .option("dbtable", "bronze.movie_review") 
     .option("user", "dbuser")
     .option("password", "dbpassword") 
     .option("driver", "org.postgresql.Driver")
