@@ -37,7 +37,7 @@ create_table_query = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (
                             amount_spent DECIMAL(18, 5),
                             positive_review INTEGER,
                             review_count INTEGER,
-                            insert_date DATE;"""
+                            insert_date DATE);"""
                             
 create_insert_into_table = f"""TRUNCATE TABLE {SCHEMA_NAME}.{TABLE_NAME};
                         INSERT INTO {SCHEMA_NAME}.{TABLE_NAME}
