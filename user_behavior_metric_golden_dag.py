@@ -18,7 +18,7 @@ default_args = {
 }
 
 
-dag = DAG('review_silver_spark',
+dag = DAG('user_behavior_metric_golden',
           default_args=default_args,
           schedule_interval='@once',
           catchup=False)
