@@ -41,7 +41,7 @@ create_table_query = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (
                             
 create_insert_into_table = f"""TRUNCATE TABLE {SCHEMA_NAME}.{TABLE_NAME};
                         INSERT INTO {SCHEMA_NAME}.{TABLE_NAME}
-                        SELECT u.customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)), SUM(r.positive_review), COUNT(r.cid), CAST(NOW() AS DATE)                      
+                        SELECT u.customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)), SUM(r.positive_review), COUNT(r.cid), CURRENT_DATE                      
                         FROM silver.reviews r
                         JOIN bronze.user_purchase u ON r.cid = u.customer_id
                         GROUP BY u.customer_id;
