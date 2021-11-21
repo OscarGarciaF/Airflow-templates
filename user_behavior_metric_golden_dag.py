@@ -3,6 +3,7 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.operators.dummy import DummyOperator
 from datetime import timedelta
 from datetime import datetime
+import os
 
 
 default_args = {
