@@ -10,12 +10,6 @@ from airflow.hooks.postgres_hook import PostgresHook
 from datetime import timedelta
 from datetime import datetime
 
-"""
-Load CSV > Postgres in GCP Cloud SQL Instance
-"""
-
-
-#default arguments 
 
 default_args = {
     'owner': 'oscar.garcia',
@@ -28,7 +22,6 @@ default_args = {
     'retry_delay': timedelta(seconds=3),
 }
 
-#name the DAG and configuration
 dag = DAG('insert_user_purchase_postgres',
           default_args=default_args,
           schedule_interval='@once',
@@ -74,7 +67,6 @@ def csv_to_postgres():
 def delete_file():
     os.remove(FILE_NAME)
 
-#Task 
 
 start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)

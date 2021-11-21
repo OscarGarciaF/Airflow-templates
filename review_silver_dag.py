@@ -7,12 +7,6 @@ from datetime import datetime
 import os
 
 
-"""
-Load CSV > Postgres in GCP Cloud SQL Instance
-"""
-
-
-#default arguments 
 
 default_args = {
     'owner': 'oscar.garcia',
@@ -25,7 +19,6 @@ default_args = {
     'retry_delay': timedelta(seconds=3),
 }
 
-#name the DAG and configuration
 dag = DAG('review_silver_spark',
           default_args=default_args,
           schedule_interval='@once',
