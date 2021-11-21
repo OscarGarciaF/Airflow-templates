@@ -25,11 +25,7 @@ default_args = {
 }
 
 
-SELECT_QUERY="""SELECT u.customer_id AS customer_id, SUM(u.quantity * u.unit_price) AS amount_spent, SUM(r.positive_review) AS positive_review, COUNT(r.cid) AS review_count, NOW() AS insert_date
-                FROM silver.reviews r
-                JOIN bronze.user_purchase u ON r.cid = u.customer_id
-                GROUP BY u.customer_id;
-                """
+
 
 #name the DAG and configuration
 dag = DAG('review_silver_spark',
@@ -41,12 +37,40 @@ BUCKET = 'data-bootcamp-terraforms-us'
 REGION = "us-central1"
 PROJECT_ID = "deliverable3-oscargarciaf"
 
-SCHEMA_NAME = "silver"
+SCHEMA_NAME = "golden"
+TABLE_NAME = "user_behavior_metric"
+
 create_schema_query = f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME} ;"
 
+create_table_query = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (    
+                            customer_id INTEGER,
+                            amount_spent DECIMAL(18, 5),
+                            positive_review INTEGER,
+                            review_count INTEGER,
+                            insert_date DATE;"""
+                            
+create_insert_into_table = f"""TRUNCATE TABLE {SCHEMA_NAME}.{TABLE_NAME};
+                        INSERT INTO {SCHEMA_NAME}.{TABLE_NAME}
+                        SELECT u.customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)), SUM(r.positive_review), COUNT(r.cid), CAST(NOW() AS DATE)                      
+                        FROM silver.reviews r
+                        JOIN bronze.user_purchase u ON r.cid = u.customer_id
+                        GROUP BY u.customer_id;
+                        """
 
 task_create_schema = PostgresOperator(task_id = 'create_schema',
                         sql=create_schema_query,
+                            postgres_conn_id= 'postgres_default', 
+                            autocommit=True,
+                            dag= dag)
+
+task_create_table = PostgresOperator(task_id = 'create_table',
+                        sql=create_table_query,
+                            postgres_conn_id= 'postgres_default', 
+                            autocommit=True,
+                            dag= dag)
+
+task_insert_into_table = PostgresOperator(task_id = 'insert_into_table',
+                        sql=create_insert_into_table,
                             postgres_conn_id= 'postgres_default', 
                             autocommit=True,
                             dag= dag)
@@ -57,4 +81,4 @@ start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 
 
-start_dummy >> task_create_schema >> end_dummy
+start_dummy >> task_create_schema >> task_create_table >> task_insert_into_table >> end_dummy

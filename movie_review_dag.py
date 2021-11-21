@@ -10,12 +10,6 @@ from airflow.hooks.postgres_hook import PostgresHook
 from datetime import timedelta
 from datetime import datetime
 
-"""
-Load CSV > Postgres in GCP Cloud SQL Instance
-"""
-
-
-#default arguments 
 
 default_args = {
     'owner': 'oscar.garcia',
@@ -28,7 +22,6 @@ default_args = {
     'retry_delay': timedelta(seconds=3),
 }
 
-#name the DAG and configuration
 dag = DAG('insert_movie_review_postgres',
           default_args=default_args,
           schedule_interval='@once',
@@ -52,7 +45,6 @@ CREATE_TABLE_QUERY = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (
                             review_str VARCHAR);
                             """
 
-
 def csv_to_postgres():
     #Open Postgres Connection
     pg_hook = PostgresHook(postgres_conn_id='postgres_default')
@@ -69,13 +61,9 @@ def csv_to_postgres():
 def delete_file():
     os.remove(FILE_NAME)
 
-#Task 
 
 start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
-
-
-
 
 
 task_create_schema = PostgresOperator(task_id = 'create_schema',
