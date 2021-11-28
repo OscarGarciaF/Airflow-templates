@@ -59,7 +59,7 @@ create_table = BigQueryCreateEmptyTableOperator(
     exists_ok = True,
     schema_fields=[
         {"name": "customer_id", "type": "INTEGER", "mode": "REQUIRED"},
-        {"name": "amount_spent", "type": "DECIMAL(18, 5)", "mode": "REQUIRED"},
+        {"name": "amount_spent", "type": "DECIMAL", "mode": "REQUIRED"},
         {"name": "positive_review", "type": "INTEGER", "mode": "REQUIRED"},
         {"name": "review_count", "type": "INTEGER", "mode": "REQUIRED"},
         {"name": "insert_date", "type": "DATE", "mode": "REQUIRED"},
