@@ -32,7 +32,7 @@ DATASET_NAME = "golden"
 
 
 insert_into_table_query = (
-        f"TRUNCATE TABLE {DATASET_NAME}.{TABLE_NAME} ;"
+        f"TRUNCATE TABLE {DATASET_NAME}.{TABLE_NAME}; "
         f"INSERT INTO {DATASET_NAME}.{TABLE_NAME} "
         f"SELECT * FROM EXTERNAL_QUERY(\"projects/deliverable3-oscargarciaf/locations/us-central1/connections/deliverable3-postgres-conn\", "
         f"\"\"\"SELECT u.customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)), SUM(r.positive_review), COUNT(r.cid), CURRENT_DATE "
