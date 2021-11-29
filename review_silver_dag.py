@@ -63,8 +63,6 @@ wait_for_movie_bronze = ExternalTaskSensor(
     external_dag_id="insert_movie_review_postgres",
     timeout=10000,
     execution_delta = timedelta(minutes=30),
-    allowed_states=['success'],
-    failed_states=['failed', 'skipped'],
     mode="reschedule",
 )
 
@@ -73,8 +71,6 @@ wait_for_user_purchase_bronze = ExternalTaskSensor(
     external_dag_id="insert_user_purchase_postgres",
     timeout=10000,
     execution_delta = timedelta(minutes=30),
-    allowed_states=['success'],
-    failed_states=['failed', 'skipped'],
     mode="reschedule",
 )
 

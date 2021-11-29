@@ -6,6 +6,7 @@ from datetime import datetime
 import os
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateEmptyDatasetOperator, BigQueryCreateEmptyTableOperator, BigQueryInsertJobOperator
 from airflow.sensors.external_task import ExternalTaskSensor
+from airflow.utils.state import State
 
 default_args = {
     'owner': 'oscar.garcia',
@@ -30,8 +31,6 @@ wait_for_review_silver = ExternalTaskSensor(
     external_dag_id="review_silver_spark",
     timeout=100000,
     execution_delta = timedelta(minutes=30),
-    allowed_states=['success'],
-    failed_states=['failed', 'skipped'],
     mode="reschedule",
 )
 
