@@ -1,6 +1,7 @@
 from airflow import DAG
 from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitJobOperator, DataprocCreateClusterOperator, DataprocDeleteClusterOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
+from airflow.sensors.external_task import ExternalTaskSensor
 from airflow.operators.dummy import DummyOperator
 from datetime import timedelta
 from datetime import datetime
@@ -56,6 +57,28 @@ SCHEMA_NAME = "silver"
 create_schema_query = f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME} ;"
 
 
+
+wait_for_movie_bronze = ExternalTaskSensor(
+    task_id="wait_for_movie_bronze",
+    external_dag_id="insert_movie_review_postgres",
+    timeout=10000,
+    execution_delta = datetime.timedelta(minutes=30),
+    allowed_states=['success'],
+    failed_states=['failed', 'skipped'],
+    mode="reschedule",
+)
+
+wait_for_user_purchase_bronze = ExternalTaskSensor(
+    task_id="wait_for_user_purchase_bronze",
+    external_dag_id="insert_user_purchase_postgres",
+    timeout=10000,
+    execution_delta = datetime.timedelta(minutes=30),
+    allowed_states=['success'],
+    failed_states=['failed', 'skipped'],
+    mode="reschedule",
+)
+
+
 task_create_schema = PostgresOperator(task_id = 'create_schema',
                         sql=create_schema_query,
                             postgres_conn_id= 'postgres_default', 
@@ -92,5 +115,10 @@ end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 end_dummy_spark_job = DummyOperator(task_id='end_dummy_spark_job', dag = dag)
 
 
-start_dummy >> task_create_schema >> create_cluster >> submit_spark >> delete_cluster >> end_dummy
+
+start_dummy >> wait_for_user_purchase_bronze >> task_create_schema
+start_dummy >> wait_for_movie_bronze >> task_create_schema
+
+task_create_schema >> create_cluster >> submit_spark >> delete_cluster >> end_dummy
+
 submit_spark >> end_dummy_spark_job

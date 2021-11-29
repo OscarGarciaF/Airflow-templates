@@ -4,8 +4,8 @@ from airflow.operators.dummy import DummyOperator
 from datetime import timedelta
 from datetime import datetime
 import os
-
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateEmptyDatasetOperator, BigQueryCreateEmptyTableOperator, BigQueryInsertJobOperator
+from airflow.sensors.external_task import ExternalTaskSensor
 
 default_args = {
     'owner': 'oscar.garcia',
@@ -23,6 +23,18 @@ dag = DAG('user_behavior_metric_bq_federated',
           default_args=default_args,
           schedule_interval='@once',
           catchup=False)
+
+
+wait_for_review_silver = ExternalTaskSensor(
+    task_id="wait_for_review_silver",
+    external_dag_id="review_silver_spark",
+    timeout=100000,
+    execution_delta = datetime.timedelta(minutes=30),
+    allowed_states=['success'],
+    failed_states=['failed', 'skipped'],
+    mode="reschedule",
+)
+
 
 BUCKET = 'data-bootcamp-terraforms-us'
 REGION = "us-central1"
@@ -85,4 +97,4 @@ start_dummy = DummyOperator(task_id='start_dummy', dag = dag)
 end_dummy = DummyOperator(task_id='end_dummy', dag = dag)
 
 
-start_dummy >> create_dataset >> create_table >> insert_query_job >> end_dummy
+start_dummy >> wait_for_review_silver >> create_dataset >> create_table >> insert_query_job >> end_dummy
