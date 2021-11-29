@@ -42,7 +42,7 @@ insert_into_table_query = (
     )
 
 create_dataset = BigQueryCreateEmptyDatasetOperator(
-            task_id = "create-dataset",
+            task_id = "create_dataset",
             dataset_id = DATASET_NAME,
             project_id = PROJECT_ID,
             location = REGION,
