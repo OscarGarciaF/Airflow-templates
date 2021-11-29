@@ -62,7 +62,6 @@ wait_for_movie_bronze = ExternalTaskSensor(
     task_id="wait_for_movie_bronze",
     external_dag_id="insert_movie_review_postgres",
     timeout=10000,
-    execution_delta = timedelta(minutes=30),
     mode="poke",
     dag = dag
 )
@@ -71,7 +70,6 @@ wait_for_user_purchase_bronze = ExternalTaskSensor(
     task_id="wait_for_user_purchase_bronze",
     external_dag_id="insert_user_purchase_postgres",
     timeout=10000,
-    execution_delta = timedelta(minutes=30),
     mode="poke",
     dag = dag
 )
