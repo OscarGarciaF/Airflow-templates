@@ -64,6 +64,7 @@ wait_for_movie_bronze = ExternalTaskSensor(
     timeout=10000,
     execution_delta = timedelta(minutes=30),
     mode="reschedule",
+    dag = dag
 )
 
 wait_for_user_purchase_bronze = ExternalTaskSensor(
@@ -72,6 +73,7 @@ wait_for_user_purchase_bronze = ExternalTaskSensor(
     timeout=10000,
     execution_delta = timedelta(minutes=30),
     mode="reschedule",
+    dag = dag
 )
 
 

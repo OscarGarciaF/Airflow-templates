@@ -32,6 +32,7 @@ wait_for_review_silver = ExternalTaskSensor(
     timeout=100000,
     execution_delta = timedelta(minutes=30),
     mode="reschedule",
+    dag = dag
 )
 
 
