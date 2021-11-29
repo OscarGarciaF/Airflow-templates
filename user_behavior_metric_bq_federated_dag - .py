@@ -47,7 +47,7 @@ insert_into_table_query = (
         f"TRUNCATE TABLE {DATASET_NAME}.{TABLE_NAME}; "
         f"INSERT INTO {DATASET_NAME}.{TABLE_NAME} "
         f"SELECT * FROM EXTERNAL_QUERY(\"projects/deliverable3-oscargarciaf/locations/us-central1/connections/deliverable3-postgres-conn\", "
-        f"\"\"\"SELECT u.customer_id AS customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)) AS amount_spent, SUM(r.positive_review) AS positive_review, COUNT(r.cid) AS review_count, CURRENT_DATE AS insert_date"
+        f"\"\"\"SELECT u.customer_id AS customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)) AS amount_spent, SUM(r.positive_review) AS positive_review, COUNT(r.cid) AS review_count, CURRENT_DATE AS insert_date "
         f"FROM silver.reviews r "
         f"JOIN bronze.user_purchase u ON r.cid = u.customer_id "
         f"GROUP BY u.customer_id;\"\"\"); "
