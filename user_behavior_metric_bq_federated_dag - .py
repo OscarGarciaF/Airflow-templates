@@ -29,7 +29,7 @@ wait_for_review_silver = ExternalTaskSensor(
     task_id="wait_for_review_silver",
     external_dag_id="review_silver_spark",
     timeout=100000,
-    execution_delta = datetime.timedelta(minutes=30),
+    execution_delta = timedelta(minutes=30),
     allowed_states=['success'],
     failed_states=['failed', 'skipped'],
     mode="reschedule",
