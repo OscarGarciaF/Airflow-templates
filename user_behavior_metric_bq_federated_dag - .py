@@ -31,7 +31,7 @@ wait_for_review_silver = ExternalTaskSensor(
     external_dag_id="review_silver_spark",
     timeout=100000,
     execution_delta = timedelta(minutes=30),
-    mode="reschedule",
+    mode="poke",
     dag = dag
 )
 
