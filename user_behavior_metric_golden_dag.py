@@ -39,13 +39,14 @@ create_table_query = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (
                             review_count INTEGER,
                             insert_date DATE);"""
                             
-create_insert_into_table = f"""TRUNCATE TABLE {SCHEMA_NAME}.{TABLE_NAME};
-                        INSERT INTO {SCHEMA_NAME}.{TABLE_NAME}
-                        SELECT u.customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)), SUM(r.positive_review), COUNT(r.cid), CURRENT_DATE                      
-                        FROM silver.reviews r
-                        JOIN bronze.user_purchase u ON r.cid = u.customer_id
-                        GROUP BY u.customer_id;
-                        """
+create_insert_into_table = f"""WITH review_analytics AS (SELECT cid, SUM(positive_review) AS review_score , COUNT(cid) AS review_count  FROM silver.reviews
+                            GROUP BY cid ),
+                            user_analytics AS (SELECT customer_id, CAST(SUM(quantity * unit_price) AS DECIMAL(18, 5)) AS amount_spent FROM bronze.user_purchase
+                            GROUP BY customer_id )
+                            SELECT customer_id, amount_spent, review_score, review_count, CURRENT_DATE AS insert_date                      
+                            FROM review_analytics ra
+                            JOIN user_analytics ua ON ra.cid = ua.customer_id;"""
+                        
 
 task_create_schema = PostgresOperator(task_id = 'create_schema',
                         sql=create_schema_query,
