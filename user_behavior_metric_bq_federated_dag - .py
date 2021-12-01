@@ -31,14 +31,15 @@ TABLE_NAME = "user_behavior_metric"
 DATASET_NAME = "golden"
 
 
-insert_into_table_query = (
+insert_into_table_query = (           
         f"TRUNCATE TABLE {DATASET_NAME}.{TABLE_NAME}; "
         f"INSERT INTO {DATASET_NAME}.{TABLE_NAME} "
         f"SELECT * FROM EXTERNAL_QUERY(\"projects/deliverable3-oscargarciaf/locations/us-central1/connections/deliverable3-postgres-conn\", "
-        f"\"\"\"SELECT u.customer_id AS customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)) AS amount_spent, SUM(r.positive_review) AS review_score, COUNT(r.cid) AS review_count, CURRENT_DATE AS insert_date "
-        f"FROM silver.reviews r "
-        f"JOIN bronze.user_purchase u ON r.cid = u.customer_id "
-        f"GROUP BY u.customer_id;\"\"\"); "
+        f"\"\"\"WITH review_analytics AS (SELECT cid, SUM(positive_review) AS review_score , COUNT(cid) AS review_count  FROM silver.reviews GROUP BY cid ), "
+        f"user_analytics AS (SELECT customer_id, CAST(SUM(quantity * unit_price) AS DECIMAL(18, 5)) AS amount_spent FROM bronze.user_purchase GROUP BY customer_id ) "
+        f"SELECT customer_id, amount_spent, review_score, review_count, CURRENT_DATE AS insert_date "
+        f"FROM review_analytics ra "
+        f"JOIN user_analytics ua ON ra.cid = ua.customer_id;\"\"\"); "
     )
 
 create_dataset = BigQueryCreateEmptyDatasetOperator(

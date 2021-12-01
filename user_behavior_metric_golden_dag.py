@@ -35,7 +35,7 @@ create_schema_query = f"CREATE SCHEMA IF NOT EXISTS {SCHEMA_NAME} ;"
 create_table_query = f"""CREATE TABLE IF NOT EXISTS {SCHEMA_NAME}.{TABLE_NAME} (    
                             customer_id INTEGER,
                             amount_spent DECIMAL(18, 5),
-                            positive_review INTEGER,
+                            review_score INTEGER,
                             review_count INTEGER,
                             insert_date DATE);"""
                             
