@@ -43,9 +43,9 @@ create_insert_into_table = f"""WITH review_analytics AS (SELECT cid, SUM(positiv
                             GROUP BY cid ),
                             user_analytics AS (SELECT customer_id, CAST(SUM(quantity * unit_price) AS DECIMAL(18, 5)) AS amount_spent FROM bronze.user_purchase
                             GROUP BY customer_id )
-                            SELECT customer_id, amount_spent, review_score, review_count, CURRENT_DATE AS insert_date                      
+                            SELECT customer_id, COALESCE(amount_spent, 0) AS amount_spent, COALESCE(review_score, 0) AS review_score, COALESCE(review_count, 0) AS review_count, CURRENT_DATE AS insert_date                      
                             FROM review_analytics ra
-                            JOIN user_analytics ua ON ra.cid = ua.customer_id;"""
+                            FULL JOIN user_analytics ua ON ra.cid = ua.customer_id;"""
                         
 
 task_create_schema = PostgresOperator(task_id = 'create_schema',
