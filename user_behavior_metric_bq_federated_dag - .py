@@ -24,7 +24,7 @@ dag = DAG('user_behavior_metric_bq_federated',
           schedule_interval='@once',
           catchup=False)
 
-BUCKET = 'data-bootcamp-terraforms-us'
+
 REGION = "us-central1"
 PROJECT_ID = "deliverable3-oscargarciaf"
 TABLE_NAME = "user_behavior_metric"
@@ -35,7 +35,7 @@ insert_into_table_query = (
         f"TRUNCATE TABLE {DATASET_NAME}.{TABLE_NAME}; "
         f"INSERT INTO {DATASET_NAME}.{TABLE_NAME} "
         f"SELECT * FROM EXTERNAL_QUERY(\"projects/deliverable3-oscargarciaf/locations/us-central1/connections/deliverable3-postgres-conn\", "
-        f"\"\"\"SELECT u.customer_id AS customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)) AS amount_spent, SUM(r.positive_review) AS positive_review, COUNT(r.cid) AS review_count, CURRENT_DATE AS insert_date "
+        f"\"\"\"SELECT u.customer_id AS customer_id, CAST(SUM(u.quantity * u.unit_price) AS DECIMAL(18, 5)) AS amount_spent, SUM(r.positive_review) AS review_score, COUNT(r.cid) AS review_count, CURRENT_DATE AS insert_date "
         f"FROM silver.reviews r "
         f"JOIN bronze.user_purchase u ON r.cid = u.customer_id "
         f"GROUP BY u.customer_id;\"\"\"); "
@@ -60,7 +60,7 @@ create_table = BigQueryCreateEmptyTableOperator(
     schema_fields=[
         {"name": "customer_id", "type": "INTEGER", "mode": "REQUIRED"},
         {"name": "amount_spent", "type": "DECIMAL", "mode": "REQUIRED"},
-        {"name": "positive_review", "type": "INTEGER", "mode": "REQUIRED"},
+        {"name": "review_score", "type": "INTEGER", "mode": "REQUIRED"},
         {"name": "review_count", "type": "INTEGER", "mode": "REQUIRED"},
         {"name": "insert_date", "type": "DATE", "mode": "REQUIRED"},
     ],
